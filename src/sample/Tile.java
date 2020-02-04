@@ -5,6 +5,9 @@ public class Tile {
   private static final int EMPTY_VALUE = 0;
   private char letter;
 
+  public Tile(char letter) {
+    this.letter = letter;
+  }
 
   public char getLetter() {
     return letter;

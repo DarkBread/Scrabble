@@ -11,7 +11,7 @@ public class Frame {
 
   public void fillFrameWithTiles() {
     for (int i = 0; i < tilesInFrame.length; i++) {
-      if (tilesInFrame[i].isEmpty()) {
+      if (tilesInFrame[i] == null || tilesInFrame[i].isEmpty()) {
         tilesInFrame[i] = Pool.getInstance().drawRandomTile();
       }
     }
@@ -26,10 +26,10 @@ public class Frame {
     return false;
   }
 
-  public void removeFirstTileWithLetter(char tile) {
-    for (int i = 0; i < tilesInFrame.length; i++) {
-      if (tilesInFrame[i].getLetter() == tile) {
-        tilesInFrame[i].setEmpty();
+  public void removeFirstTileWithLetter(char letter) {
+    for (Tile tileInFrame : tilesInFrame) {
+      if (tileInFrame.getLetter() == letter) {
+        tileInFrame.setEmpty();
         break;
       }
     }
