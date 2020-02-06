@@ -1,4 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.GridPane?>
-<GridPane fx:controller="sample.Controller"
-          xmlns:fx="http://javafx.com/fxml" alignment="center" hgap="10" vgap="10">
-</GridPane>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
+   <children>
+      <HBox layoutX="31.0" layoutY="301.0" prefHeight="55.0" prefWidth="193.0">
+         <children>
+            <Separator orientation="VERTICAL" prefHeight="200.0" />
+            <Label fx:id="myLabel" onDragDetected="#method" prefHeight="50.0" prefWidth="50.0" text="A" wrapText="true" />
+            <Separator orientation="VERTICAL" prefHeight="200.0" />
+            <Label layoutX="10.0" layoutY="10.0" prefHeight="50.0" prefWidth="50.0" text="B" />
+            <Separator orientation="VERTICAL" prefHeight="200.0" />
+            <Label layoutX="60.0" layoutY="10.0" prefHeight="50.0" prefWidth="50.0" text="C" />
+            <Separator orientation="VERTICAL" prefHeight="200.0" />
+            <Label layoutX="110.0" layoutY="10.0" prefHeight="50.0" prefWidth="50.0" text="D" />
+            <Separator orientation="VERTICAL" prefHeight="200.0" />
+         </children>
+      </HBox>
+      <Label layoutX="194.0" layoutY="83.0" prefHeight="27.0" prefWidth="148.0" text="Label" textAlignment="CENTER" />
+      <Separator layoutX="34.0" layoutY="300.0" prefHeight="3.0" prefWidth="187.0" />
+      <Separator layoutX="27.0" layoutY="355.0" prefHeight="3.0" prefWidth="193.0" />
+   </children>
+</AnchorPane>

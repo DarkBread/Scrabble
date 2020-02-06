@@ -1,6 +1,8 @@
 package sample;
 
-public class Frame {
+import javafx.scene.layout.HBox;
+
+public class Frame extends HBox {
 
   private static final int MAX_FRAME_SIZE = 7;
   private Tile[] tilesInFrame;
@@ -10,11 +12,12 @@ public class Frame {
   }
 
   public void fillFrameWithTiles() {
-    for (int i = 0; i < tilesInFrame.length; i++) {
+    for (int i = 0; i < MAX_FRAME_SIZE; i++) {
       if (tilesInFrame[i] == null || tilesInFrame[i].isEmpty()) {
         tilesInFrame[i] = Pool.getInstance().drawRandomTile();
       }
     }
+    getChildren().addAll(tilesInFrame);
   }
 
   public boolean thereIsTileWithLetter(char letter) {
