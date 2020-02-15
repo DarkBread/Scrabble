@@ -1,7 +1,15 @@
 package sample;
 
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.TransferMode;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.paint.Color;
 
 
 public class Tile extends Label {
@@ -17,7 +25,6 @@ public class Tile extends Label {
   public Tile() {
     setStyle("-fx-border-color: #ffb144;-fx-font-weight: bold");
     setPrefSize(40, 40);
-    //setLetter(((char) ('A' + (int) (Math.random() * 24))));
     setAlignment(Pos.CENTER);
   }
 
@@ -33,6 +40,30 @@ public class Tile extends Label {
   public void setEmpty() {
     this.letter = EMPTY_VALUE;
     setText("");
+  }
+
+  public void makeDraggable() {
+    this.setOnDragDetected(mouseEvent -> {
+      if (!this.isEmpty()) {
+        this.setBackground(new Background(new BackgroundFill(Color.LIGHTGRAY, CornerRadii.EMPTY, Insets.EMPTY)));
+        Dragboard dragboard = this.startDragAndDrop(TransferMode.ANY);
+        ClipboardContent content = new ClipboardContent();
+        content.putString(this.getText());
+        dragboard.setContent(content);
+        Board.draggedTile = this;
+        mouseEvent.consume();
+      }
+    });
+    this.setOnDragEntered(dragEvent -> {
+      this.setBackground(new Background(new BackgroundFill(Color.LIGHTGRAY, CornerRadii.EMPTY, Insets.EMPTY)));
+      dragEvent.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+    });
+    this.setOnDragOver(dragEvent -> {
+      dragEvent.acceptTransferModes(TransferMode.ANY);
+    });
+    this.setOnDragExited(dragEvent -> {
+      this.setBackground(new Background(new BackgroundFill(Color.WHITESMOKE, CornerRadii.EMPTY, Insets.EMPTY)));
+    });
   }
 
   public boolean isEmpty() {

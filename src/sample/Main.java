@@ -10,6 +10,9 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
 
+    private VBox vbox;
+
+
     @Override
     public void start(Stage primaryStage) throws Exception{
         primaryStage.setTitle("Scrabble");
@@ -27,17 +30,19 @@ public class Main extends Application {
         FlowPane flowPane = new FlowPane();
         flowPane.setHgap(50);
         FlowPane.setMargin(Board.getInstance(), new Insets(20, 0, 0, 20));
-        VBox framesOfPlayers = new VBox(getFramesOfPlayers());
+        VBox framesOfPlayers = getFramesOfPlayers();
         framesOfPlayers.setSpacing(30);
         FlowPane.setMargin(framesOfPlayers, new Insets(50, 0, 0, 0));
         flowPane.getChildren().addAll(Board.getInstance(), framesOfPlayers);
         return flowPane;
     }
 
-    private Frame[] getFramesOfPlayers() {
+    private VBox getFramesOfPlayers() {
         Player one = new Player("Bob");
         Player two = new Player("Patrick");
-        return new Frame[]{one.getFrame(), two.getFrame()};
+        VBox framesOfPlayers = new VBox(one.getFrame(), two.getFrame());
+        framesOfPlayers.setSpacing(30);
+        return framesOfPlayers;
     }
 
 

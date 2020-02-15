@@ -9,7 +9,7 @@ public class Pool {
   private static Pool pool;
   private static HashMap<Character, Integer> valuesOfLetters;
   private static HashMap<Character, Integer> amountInStartingPool;
-  private ArrayList<Tile> tilesInPool;
+  private ArrayList<FrameTile> tilesInPool;
 
   // initializing value of each letter and amount of each letter in the starting pool
   static {
@@ -74,7 +74,7 @@ public class Pool {
 
   private Pool() {
     tilesInPool = new ArrayList<>(100);
-    fillPoolWithTiles();
+    fillPoolWithFrameTiles();
   }
 
   public static Pool getInstance() {
@@ -84,28 +84,28 @@ public class Pool {
     return pool;
   }
 
-  private void fillPoolWithTiles() {
+  private void fillPoolWithFrameTiles() {
     for (Character letter :
             valuesOfLetters.keySet()) {
       for (int i = 0; i < amountInStartingPool.get(letter); i++) {
-        tilesInPool.add(new Tile(letter));
+        tilesInPool.add(new FrameTile(letter));
       }
     }
   }
 
   public void reset() {
     tilesInPool.clear();
-    fillPoolWithTiles();
+    fillPoolWithFrameTiles();
   }
 
   public boolean isEmpty() {
     return tilesInPool.isEmpty();
   }
 
-  public Tile drawRandomTile() {
-    int indexOfRandomTile = (int) (Math.random() * tilesInPool.size());
-    Tile drawn = tilesInPool.get(indexOfRandomTile);
-    tilesInPool.remove(indexOfRandomTile);
+  public FrameTile drawRandomFrameTile() {
+    int indexOfRandomFrameTile = (int) (Math.random() * tilesInPool.size());
+    FrameTile drawn = tilesInPool.get(indexOfRandomFrameTile);
+    tilesInPool.remove(indexOfRandomFrameTile);
     return drawn;
   }
 
@@ -113,7 +113,7 @@ public class Pool {
     return valuesOfLetters.get(letter);
   }
 
-  public int numberOfTilesInThePool() {
+  public int numberOfFrameTilesInThePool() {
     return tilesInPool.size();
   }
 }
