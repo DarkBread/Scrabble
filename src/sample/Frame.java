@@ -21,17 +21,13 @@ public class Frame extends HBox {
   private void setDragLogic(Tile tile) {
     tile.setOnDragDone(dragEvent -> {
       if (dragEvent.getTransferMode() == TransferMode.MOVE) {
-        int indexOfRemovedTile = getChildren().indexOf(Board.draggedTile);
-        FrameTile replacing = new FrameTile();
-        setDragLogic(replacing);
-        getChildren().set(indexOfRemovedTile, replacing);
+        tile.setLetter((char) Tile.EMPTY_VALUE);
       }
     });
     tile.setOnDragDropped(dragEvent -> {
       if (Board.draggedTile instanceof BoardTile && tile.isEmpty()) {
-        FrameTile replacing = new FrameTile(Board.draggedTile.getLetter());
-        setDragLogic(replacing);
-        getChildren().set(getChildren().indexOf(tile), replacing);
+        tile.setLetter(Board.draggedTile.getLetter());
+        dragEvent.setDropCompleted(true);
       } else {
         dragEvent.setDropCompleted(false);
       }

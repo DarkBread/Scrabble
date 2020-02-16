@@ -14,8 +14,10 @@ import javafx.scene.paint.Color;
 
 public class Tile extends Label {
 
-  private static final int EMPTY_VALUE = 0;
+  public static final int EMPTY_VALUE = 0;
   private char letter;
+  protected Background background = new Background(new BackgroundFill(Color.WHITESMOKE, CornerRadii.EMPTY, Insets.EMPTY));
+
 
   public Tile(char letter) {
     this();
@@ -62,7 +64,7 @@ public class Tile extends Label {
       dragEvent.acceptTransferModes(TransferMode.ANY);
     });
     this.setOnDragExited(dragEvent -> {
-      this.setBackground(new Background(new BackgroundFill(Color.WHITESMOKE, CornerRadii.EMPTY, Insets.EMPTY)));
+      this.setBackground(background);
     });
   }
 
