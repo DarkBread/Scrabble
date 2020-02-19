@@ -1,5 +1,6 @@
 package sample;
 
+import javafx.scene.Node;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.HBox;
 
@@ -8,13 +9,27 @@ public class Frame extends HBox {
   private static final int MAX_FRAME_SIZE = 7;
 
   public Frame() {
+    this.setStyle("-fx-border-color: #4276ff;-fx-border-width: 3");
+    fillFrameWithTiles();
   }
 
-  public void fillFrameWithTiles() {
+  private void fillFrameWithTiles() {
     for (int i = 0; i < MAX_FRAME_SIZE; i++) {
-      Tile drawn = Pool.getInstance().drawRandomFrameTile();
+      FrameTile drawn = Pool.getInstance().drawRandomFrameTile();
       setDragLogic(drawn);
       getChildren().add(drawn);
+    }
+  }
+
+  public void refillFrameWithTiles() {
+    for (Node frameTile :
+            getChildren()) {
+      if (((FrameTile) frameTile).isEmpty()) {
+        FrameTile replacing = Pool.getInstance().drawRandomFrameTile();
+        if (replacing != null) {
+          ((FrameTile) frameTile).setLetter(replacing.getLetter());
+        }
+      }
     }
   }
 

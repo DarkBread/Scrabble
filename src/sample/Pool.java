@@ -103,9 +103,12 @@ public class Pool {
   }
 
   public FrameTile drawRandomFrameTile() {
-    int indexOfRandomFrameTile = (int) (Math.random() * tilesInPool.size());
-    FrameTile drawn = tilesInPool.get(indexOfRandomFrameTile);
-    tilesInPool.remove(indexOfRandomFrameTile);
+    FrameTile drawn = null;
+    if (!tilesInPool.isEmpty()) {
+      int indexOfRandomFrameTile = (int) (Math.random() * tilesInPool.size());
+      drawn = tilesInPool.get(indexOfRandomFrameTile);
+      tilesInPool.remove(indexOfRandomFrameTile);
+    }
     return drawn;
   }
 

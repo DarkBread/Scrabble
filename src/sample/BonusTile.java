@@ -1,6 +1,7 @@
 package sample;
 
 import javafx.geometry.Insets;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
@@ -8,24 +9,29 @@ import javafx.scene.paint.Color;
 
 public class BonusTile extends BoardTile {
 
-  Type type;
+  private Type type;
 
   public BonusTile(Type type) {
     this.type = type;
     setColor();
+    setTooltip(new Tooltip(type.getTooltip()));
     setOnDragExited(dragEvent -> setBackground(background));
+  }
+
+  public Type getType() {
+    return type;
   }
 
   private void setColor() {
     switch (type) {
       case START:
-        background = new Background(new BackgroundFill(Color.GREEN, CornerRadii.EMPTY, Insets.EMPTY));
+        background = new Background(new BackgroundFill(Color.LIGHTGREEN, CornerRadii.EMPTY, Insets.EMPTY));
         break;
       case DOUBLE_LETTER_SCORE:
-        background = new Background(new BackgroundFill(Color.BLUE, CornerRadii.EMPTY, Insets.EMPTY));
+        background = new Background(new BackgroundFill(Color.LIGHTBLUE, CornerRadii.EMPTY, Insets.EMPTY));
         break;
       case TRIPLE_LETTER_SCORE:
-        background = new Background(new BackgroundFill(Color.DARKBLUE, CornerRadii.EMPTY, Insets.EMPTY));
+        background = new Background(new BackgroundFill(Color.CORNFLOWERBLUE, CornerRadii.EMPTY, Insets.EMPTY));
         break;
       case DOUBLE_WORD_SCORE:
         background = new Background(new BackgroundFill(Color.PINK, CornerRadii.EMPTY, Insets.EMPTY));
@@ -36,5 +42,20 @@ public class BonusTile extends BoardTile {
     setBackground(background);
   }
 
-  enum Type {DOUBLE_LETTER_SCORE, TRIPLE_LETTER_SCORE, DOUBLE_WORD_SCORE, TRIPLE_WORD_SCORE, START}
+  enum Type {
+    DOUBLE_LETTER_SCORE("Double Letter Score"),
+    TRIPLE_LETTER_SCORE("Triple Letter Score"),
+    DOUBLE_WORD_SCORE("Double Word Score"),
+    TRIPLE_WORD_SCORE("Triple Word Score"),
+    START("First Word Should Start From Here");
+    private String tooltip;
+
+    Type(String tooltip) {
+      this.tooltip = tooltip;
+    }
+
+    public String getTooltip() {
+      return tooltip;
+    }
+  }
 }
