@@ -12,63 +12,66 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
 
 
-public class Tile extends Label {
+class Tile extends Label {
 
-  public static final int EMPTY_VALUE = 0;
+  static final int EMPTY_VALUE = 0;
+  private static Background ordinalBackground = new Background(new BackgroundFill(Color.WHITESMOKE, CornerRadii.EMPTY, Insets.EMPTY));
+  private static Background grayBackground = new Background(new BackgroundFill(Color.LIGHTGRAY, CornerRadii.EMPTY, Insets.EMPTY));
   private char letter;
-  protected Background background = new Background(new BackgroundFill(Color.WHITESMOKE, CornerRadii.EMPTY, Insets.EMPTY));
+  private boolean draggable;
 
-
-  public Tile(char letter) {
+  Tile(char letter) {
     this();
     setLetter(letter);
   }
 
-  public Tile() {
+  Tile() {
+    draggable = false;
     setStyle("-fx-border-color: #ffb144;-fx-font-weight: bold");
     setPrefSize(40, 40);
     setAlignment(Pos.CENTER);
   }
 
-  public char getLetter() {
+  static Background getGrayBackground() {
+    return grayBackground;
+  }
+
+  static Background getOrdinalBackground() {
+    return ordinalBackground;
+  }
+
+  boolean isDraggable() {
+    return draggable;
+  }
+
+  void setDraggable(boolean draggable) {
+    this.draggable = draggable;
+  }
+
+  char getLetter() {
     return letter;
   }
 
-  public void setLetter(char letter) {
+  void setLetter(char letter) {
     this.letter = letter;
     setText(String.valueOf(letter));
   }
 
-  public void setEmpty() {
+  void setEmpty() {
     this.letter = EMPTY_VALUE;
     setText("");
   }
 
-  public void makeDraggable() {
-    this.setOnDragDetected(mouseEvent -> {
-      if (!this.isEmpty()) {
-        this.setBackground(new Background(new BackgroundFill(Color.LIGHTGRAY, CornerRadii.EMPTY, Insets.EMPTY)));
-        Dragboard dragboard = this.startDragAndDrop(TransferMode.ANY);
-        ClipboardContent content = new ClipboardContent();
-        content.putString(this.getText());
-        dragboard.setContent(content);
-        Board.draggedTile = this;
-        mouseEvent.consume();
-      }
-    });
-    this.setOnDragEntered(dragEvent -> {
-      this.setBackground(new Background(new BackgroundFill(Color.LIGHTGRAY, CornerRadii.EMPTY, Insets.EMPTY)));
-      dragEvent.acceptTransferModes(TransferMode.COPY_OR_MOVE);
-    });
-    this.setOnDragOver(dragEvent -> {
-      dragEvent.acceptTransferModes(TransferMode.ANY);
-    });
-    this.setOnDragExited(dragEvent -> {
-      this.setBackground(background);
-    });
+  void setUpDragAndDropActivity() {
+    this.setBackground(Tile.getGrayBackground());
+    Dragboard dragboard = this.startDragAndDrop(TransferMode.ANY);
+    ClipboardContent content = new ClipboardContent();
+    content.putString(this.getText());
+    dragboard.setContent(content);
+    Board.draggedTile = this;
   }
 
-  public boolean isEmpty() {
+  boolean isEmpty() {
     return this.letter == EMPTY_VALUE;
   }
 }

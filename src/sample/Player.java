@@ -3,6 +3,7 @@ package sample;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
@@ -12,33 +13,57 @@ import javafx.scene.text.FontWeight;
 
 public class Player {
 
-  private String name;
   private int score;
   private Frame frame;
   private GridPane attributesOfPlayer;
   private Button doneButton;
   private Button skipButton;
-  private Label nameOfPlayer;
+  private Label name;
   private BooleanProperty isMyTurn;
 
   public Player(String name) {
-    this.name = name;
+    this.name = new Label(name);
     isMyTurn = new SimpleBooleanProperty(false);
     isMyTurn.addListener(observable -> {
-      updateButtons();
       refillFrameWithTiles();
+      updateAttributes();
     });
     frame = new Frame();
     attributesOfPlayer = new GridPane();
     doneButton = setUpDoneButton();
     skipButton = setUpSkipButton();
-    nameOfPlayer = setUpLabel();
-    attributesOfPlayer.add(nameOfPlayer, 0, 0);
+    setUpLabel();
+    attributesOfPlayer.add(this.name, 0, 0);
     attributesOfPlayer.add(frame, 0, 1);
     attributesOfPlayer.add(doneButton, 1, 1);
     attributesOfPlayer.add(skipButton, 2, 1);
     GridPane.setMargin(doneButton, new Insets(0, 15, 0, 15));
+    updateAttributes();
+  }
+
+  private void updateAttributes() {
     updateButtons();
+    updateName();
+    updateFrame();
+  }
+
+  private void updateFrame() {
+    for (Node node :
+            frame.getChildren()) {
+      if (isMyTurn()) {
+        ((Tile) node).setDraggable(true);
+      } else {
+        ((Tile) node).setDraggable(false);
+      }
+    }
+  }
+
+  private void updateName() {
+    if (isMyTurn.getValue()) {
+      name.setTextFill(Color.GREEN);
+    } else {
+      name.setTextFill(Color.GRAY);
+    }
   }
 
   public void refillFrameWithTiles() {
@@ -55,16 +80,15 @@ public class Player {
       doneButton.setDisable(false);
       skipButton.setTextFill(Color.GREEN);
       skipButton.setDisable(false);
-      nameOfPlayer.setTextFill(Color.GREEN);
+      name.setTextFill(Color.GREEN);
     } else {
       doneButton.setTextFill(Color.GRAY);
       doneButton.setDisable(true);
       skipButton.setTextFill(Color.GRAY);
       skipButton.setDisable(true);
-      nameOfPlayer.setTextFill(Color.GRAY);
+      name.setTextFill(Color.GRAY);
     }
   }
-
   private Button setUpSkipButton() {
     Button skipButton = new Button("Skip");
     skipButton.setFont(Font.font("Ariel", FontWeight.BOLD, 14));
@@ -79,6 +103,7 @@ public class Player {
     doneButton.setFont(Font.font("Ariel", FontWeight.BOLD, 14));
     doneButton.setOnMouseClicked(mouseEvent -> {
       if (Board.getInstance().wordPlacedCorrectly()) {
+        Board.getInstance().makePlacedTilesNotDraggable();
         isMyTurn.setValue(false);
       }
     });
@@ -94,19 +119,18 @@ public class Player {
   }
 
   private Label setUpLabel() {
-    Label nameOfPlayer = new Label(name);
-    nameOfPlayer.setTextFill(Color.BLACK);
-    nameOfPlayer.setFont(Font.font("Arial", FontWeight.BOLD, 16));
-    return nameOfPlayer;
+    name.setTextFill(Color.BLACK);
+    name.setFont(Font.font("Arial", FontWeight.BOLD, 16));
+    return name;
   }
 
 
   public String getName() {
-    return name;
+    return name.getText();
   }
 
   public void setName(String name) {
-    this.name = name;
+    this.name.setText(name);
   }
 
   public int getScore() {

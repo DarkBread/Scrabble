@@ -5,13 +5,13 @@ import javafx.scene.layout.GridPane;
 
 import java.util.ArrayList;
 
-public class Board extends GridPane {
+class Board extends GridPane {
 
   private final static int BOARD_SIZE = 15;
-  private static Board board;
-  private ArrayList<BoardTile> modifiableTiles;
-  private boolean firstWord;
   public static Tile draggedTile;
+  private static Board board;
+  private static ArrayList<Tile> tilesPlacesOnCurrentTurn;
+  private boolean firstWord;
 
 
   private Board() {
@@ -24,12 +24,14 @@ public class Board extends GridPane {
     drawGameBoard();
     this.setStyle("-fx-border-color: #4276ff;-fx-border-width: 3");
     firstWord = true;
+    tilesPlacesOnCurrentTurn = new ArrayList<>();
   }
 
   public static void setDragLogic(Tile tile) {
     tile.setOnDragDropped(dragEvent -> {
       if (tile.isEmpty()) {
         tile.setLetter(draggedTile.getLetter());
+        tilesPlacesOnCurrentTurn.add(tile);
         dragEvent.setDropCompleted(true);
       } else {
         dragEvent.setDropCompleted(false);
@@ -37,9 +39,17 @@ public class Board extends GridPane {
     });
     tile.setOnDragDone(dragEvent -> {
       if (dragEvent.getTransferMode() == TransferMode.MOVE) {
-        tile.setLetter((char) Tile.EMPTY_VALUE);
+        tilesPlacesOnCurrentTurn.remove(tile);
+        tile.setEmpty();
       }
     });
+  }
+
+  public static Board getInstance() {
+    if (board == null) {
+      board = new Board();
+    }
+    return board;
   }
 
   private void drawGameBoard() {
@@ -91,13 +101,6 @@ public class Board extends GridPane {
     }
   }
 
-  public static Board getInstance() {
-    if (board == null) {
-      board = new Board();
-    }
-    return board;
-  }
-
   public boolean wordPlacedCorrectly() {
     if (firstWord) {
       if (getStartTile().isEmpty()) {
@@ -107,6 +110,19 @@ public class Board extends GridPane {
     }
     Scrabble.logs.setText("");
     return true;
+  }
+
+  public void makePlacedTilesNotDraggable() {
+    for (Tile placedTile :
+            tilesPlacesOnCurrentTurn) {
+      placedTile.setStyle("-fx-border-color: #737f80;-fx-font-weight: bold;-fx-font-style: italic;-fx-border-width: 2");
+      placedTile.setOnDragDone(null);
+      placedTile.setOnDragDetected(null);
+      placedTile.setOnDragOver(null);
+      placedTile.setOnDragEntered(null);
+      placedTile.setOnDragExited(null);
+      placedTile.setDraggable(false);
+    }
   }
 
   private BoardTile getStartTile() {

@@ -1,6 +1,8 @@
 package sample;
 
 import javafx.application.Application;
+import javafx.concurrent.Service;
+import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -15,31 +17,13 @@ import java.util.ArrayList;
 
 public class Scrabble extends Application {
 
-    public static TextArea logs = new TextArea();
+    static TextArea logs = new TextArea();
     private static ArrayList<Player> players;
     private static Thread gameProcess;
 
     static {
         players = addPlayers();
-        Runnable game = new Runnable() {
-            @Override
-            public void run() {
-                while (true) {
-                    for (Player player : players) {
-                        player.setIsMyTurn(true);
-                        player.refillFrameWithTiles();
-                        do {
-                            try {
-                                Thread.sleep(1000);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                        } while (player.isMyTurn());
-                    }
-                }
-            }
-        };
-        gameProcess = new Thread(game);
+        new GameProcess().start();
         logs.setEditable(false);
         logs.setFont(Font.font("Arial", 14));
         logs.setText(logs.getText() + "Start Of The Game");
@@ -63,11 +47,6 @@ public class Scrabble extends Application {
         Scene scene = new Scene(drawUI(), 900, 600);
         primaryStage.setScene(scene);
         primaryStage.show();
-        startGame();
-    }
-
-    private void startGame() {
-        gameProcess.start();
     }
 
     private Parent drawUI() {
@@ -96,5 +75,34 @@ public class Scrabble extends Application {
         }
         framesOfPlayers.setSpacing(30);
         return framesOfPlayers;
+    }
+
+    private static class GameProcess extends Service {
+
+        private static int SLEEP_TIME = 1000;
+        private boolean gameHasFinished = false;
+
+        @Override
+        protected Task createTask() {
+            return new Task() {
+                @Override
+                protected Object call() throws Exception {
+                    while (!gameHasFinished) {
+                        for (Player player : players) {
+                            player.setIsMyTurn(true);
+                            player.refillFrameWithTiles();
+                            do {
+                                try {
+                                    Thread.sleep(SLEEP_TIME);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                            } while (player.isMyTurn());
+                        }
+                    }
+                    return this;
+                }
+            };
+        }
     }
 }

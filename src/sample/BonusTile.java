@@ -10,7 +10,7 @@ import javafx.scene.paint.Color;
 public class BonusTile extends BoardTile {
 
   private Type type;
-
+  private Background background;
   public BonusTile(Type type) {
     this.type = type;
     setColor();
