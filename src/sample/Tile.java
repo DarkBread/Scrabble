@@ -26,7 +26,7 @@ class Tile extends Label {
   }
 
   Tile() {
-    draggable = false;
+    draggable = true;
     setStyle("-fx-border-color: #ffb144;-fx-font-weight: bold");
     setPrefSize(40, 40);
     setAlignment(Pos.CENTER);
