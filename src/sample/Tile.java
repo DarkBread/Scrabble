@@ -23,8 +23,6 @@ class Tile extends Label {
   Tile(char letter) {
     this();
     setLetter(letter);
-    Label label = new Label(String.valueOf(Pool.getValueOfLetter(letter)));
-
   }
 
   Tile() {

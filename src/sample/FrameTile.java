@@ -1,9 +1,16 @@
 package sample;
 
+import javafx.geometry.Insets;
 import javafx.scene.input.TransferMode;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.paint.Color;
 
 public class FrameTile extends Tile {
 
+  private static Background orangeBackground = new Background(new BackgroundFill(Color.ORANGE, CornerRadii.EMPTY, Insets.EMPTY));
+  private boolean exchangeable;
 
   public FrameTile(char letter) {
     super(letter);
@@ -17,7 +24,7 @@ public class FrameTile extends Tile {
 
   public void makeDraggable() {
     this.setOnDragDetected(mouseEvent -> {
-      if (isDraggable()) {
+      if (isDraggable() && !isEmpty()) {
         setUpDragAndDropActivity();
         mouseEvent.consume();
       }
@@ -36,6 +43,23 @@ public class FrameTile extends Tile {
     this.setOnDragExited(dragEvent -> {
       this.setBackground(Tile.getOrdinalBackground());
     });
+    this.setOnMouseClicked(mouseEvent -> {
+      reverseExchangeable();
+    });
+  }
+
+  public void reverseExchangeable() {
+    if (isDraggable() && !isEmpty() && !exchangeable) {
+      setBackground(orangeBackground);
+      exchangeable = true;
+    } else {
+      setBackground(Tile.getOrdinalBackground());
+      exchangeable = false;
+    }
+  }
+
+  public boolean isExchangeable() {
+    return exchangeable;
   }
 }
 

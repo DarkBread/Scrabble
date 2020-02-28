@@ -43,15 +43,28 @@ public class BonusTile extends BoardTile {
   }
 
   enum Type {
-    DOUBLE_LETTER_SCORE("Double Letter Score"),
-    TRIPLE_LETTER_SCORE("Triple Letter Score"),
-    DOUBLE_WORD_SCORE("Double Word Score"),
-    TRIPLE_WORD_SCORE("Triple Word Score"),
-    START("First Word Should Start From Here");
+    DOUBLE_LETTER_SCORE("Double Letter Score", 2, false),
+    TRIPLE_LETTER_SCORE("Triple Letter Score", 3, false),
+    DOUBLE_WORD_SCORE("Double Word Score", 2, true),
+    TRIPLE_WORD_SCORE("Triple Word Score", 3, true),
+    START("First Word Should Start From Here", 1, false);
     private String tooltip;
+    private int multiplier;
+    private boolean wholeWordMultiplier;
 
-    Type(String tooltip) {
+    Type(String tooltip, int multiplier, boolean wholeWordMultiplier) {
       this.tooltip = tooltip;
+      this.multiplier = multiplier;
+      this.wholeWordMultiplier = wholeWordMultiplier;
+    }
+
+
+    public int getMultiplier() {
+      return multiplier;
+    }
+
+    public boolean isWholeWordMultiplier() {
+      return wholeWordMultiplier;
     }
 
     public String getTooltip() {

@@ -48,29 +48,44 @@ public class Frame extends HBox {
       }
     });
   }
-}
 
+  public void makeAllTilesUnchangeable() {
+    for (Node node :
+            getChildren()) {
+      FrameTile frameTile = (FrameTile) node;
+      if (frameTile.isExchangeable()) {
+        frameTile.reverseExchangeable();
+      }
+    }
+  }
 
-
-
-
+  public FrameTile getFrameTileWithLetter(char letter) {
+    for (Node node : getChildren()) {
+      FrameTile frameTile = (FrameTile) node;
+      if (frameTile.getLetter() == letter) {
+        return frameTile;
+      }
+    }
+    return null;
+  }
 
   /*public boolean thereIsTileWithLetter(char letter) {
-    for (Tile tileInFrame : getChildren()) {
-      if (tileInFrame.getLetter() == letter) {
+    for (Node node : getChildren()) {
+      Tile frameTile = (FrameTile) node;
+      if (frameTile.getLetter() == letter) {
         return true;
       }
     }
     return false;
   }
-*/
-  /*public void removeFirstTileWithLetter(char letter) {
-    for (Tile tileInFrame : getChildren()) {
-      if (tileInFrame.getLetter() == letter) {
-        tileInFrame.setEmpty();
+
+  public void removeFirstTileWithLetter(char letter) {
+    for (Node node : getChildren()) {
+      FrameTile frameTile = (FrameTile) node;
+      if (frameTile.getLetter() == letter) {
+        frameTile.setEmpty();
         break;
       }
     }
-  }
+  }*/
 }
-*/

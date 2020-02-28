@@ -12,18 +12,14 @@ class Board extends GridPane {
   private final static int BOARD_SIZE = 15;
   public static Tile draggedTile;
   private static Board board;
-  private static ArrayList<Tile> tilesPlacedOnCurrentTurn = new ArrayList<>();
+  private ArrayList<Tile> tilesPlacedOnCurrentTurn = new ArrayList<>();
   private boolean firstWord = true;
 
-  private Board() {
-    drawGameBoard();
-    this.setStyle("-fx-border-color: #4276ff;-fx-border-width: 3");
-  }
   public static void setDragLogic(Tile tile) {
     tile.setOnDragDropped(dragEvent -> {
       if (tile.isEmpty()) {
         tile.setLetter(draggedTile.getLetter());
-        tilesPlacedOnCurrentTurn.add(tile);
+        getInstance().tilesPlacedOnCurrentTurn.add(tile);
         dragEvent.setDropCompleted(true);
       } else {
         dragEvent.setDropCompleted(false);
@@ -31,10 +27,19 @@ class Board extends GridPane {
     });
     tile.setOnDragDone(dragEvent -> {
       if (dragEvent.getTransferMode() == TransferMode.MOVE) {
-        tilesPlacedOnCurrentTurn.remove(tile);
+        getInstance().tilesPlacedOnCurrentTurn.remove(tile);
         tile.setEmpty();
       }
     });
+  }
+
+  private Board() {
+    drawGameBoard();
+    this.setStyle("-fx-border-color: #4276ff;-fx-border-width: 3");
+  }
+
+  public ArrayList<Tile> getTilesPlacedOnCurrentTurn() {
+    return tilesPlacedOnCurrentTurn;
   }
 
   public static Board getInstance() {
@@ -103,7 +108,7 @@ class Board extends GridPane {
     printGameBoardToConsole();
   }
 
-  public void makePlacedTilesNotDraggable() {
+  void makePlacedTilesNotDraggable() {
     for (Tile placedTile :
             tilesPlacedOnCurrentTurn) {
       placedTile.setStyle("-fx-border-color: #737f80;-fx-font-weight: bold;-fx-font-style: italic;-fx-border-width: 3");
@@ -119,6 +124,9 @@ class Board extends GridPane {
   }
 
   boolean wordPlacedCorrectly() {
+    if (tilesPlacedOnCurrentTurn.isEmpty()) {
+      return false;
+    }
     if (getStartTile().isEmpty()) {
       Scrabble.logs.setText("First Word Should Be Placed At The Start Tile");
       return false;
@@ -141,6 +149,7 @@ class Board extends GridPane {
         }
       }
       if (!thereIsConnectingTile()) {
+
         Tile connecting = getTileByRowColumnIndex(GridPane.getRowIndex(tilesPlacedOnCurrentTurn.get(0)),
                 GridPane.getColumnIndex(tilesPlacedOnCurrentTurn.get(0)) - 1);
         if (!connecting.isDraggable()) {
@@ -259,6 +268,24 @@ class Board extends GridPane {
       }
     }
     return result;
+  }
+
+  public int calculateWordScore() {
+    int scoreForWord = 0;
+    int multiplier = 1;
+    for (Tile tile : tilesPlacedOnCurrentTurn) {
+      if (tile instanceof BonusTile) {
+        BonusTile bonusTile = (BonusTile) tile;
+        if (bonusTile.getType().isWholeWordMultiplier()) {
+          multiplier *= bonusTile.getType().getMultiplier();
+        } else {
+          scoreForWord += Pool.getValueOfLetter(bonusTile.getLetter()) * bonusTile.getType().getMultiplier();
+        }
+      } else {
+        scoreForWord += Pool.getValueOfLetter(tile.getLetter());
+      }
+    }
+    return scoreForWord * multiplier;
   }
 }
 

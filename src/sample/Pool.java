@@ -119,4 +119,16 @@ public class Pool {
   public int numberOfFrameTilesInThePool() {
     return tilesInPool.size();
   }
+
+  public FrameTile replaceTile(FrameTile tileToReplace) {
+    FrameTile randomFrameTile = null;
+    if (!tilesInPool.isEmpty()) {
+      randomFrameTile = drawRandomFrameTile();
+      tileToReplace.reverseExchangeable();
+      tilesInPool.add(tileToReplace);
+    } else {
+      Scrabble.logs.setText("There is no more tiles in the pool");
+    }
+    return randomFrameTile;
+  }
 }

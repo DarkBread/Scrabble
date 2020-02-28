@@ -18,12 +18,14 @@ public class Player {
   private Frame frame;
   private GridPane attributesOfPlayer;
   private Button doneButton;
-  private Button skipButton;
+  private Button passButton;
   private Label name;
+  private String nameOfPlayer;
   private BooleanProperty isMyTurn;
 
   public Player(String name) {
     this.name = new Label(name);
+    nameOfPlayer = name;
     isMyTurn = new SimpleBooleanProperty(false);
     isMyTurn.addListener(observable -> {
       refillFrameWithTiles();
@@ -32,14 +34,22 @@ public class Player {
     frame = new Frame();
     attributesOfPlayer = new GridPane();
     doneButton = setUpDoneButton();
-    skipButton = setUpSkipButton();
+    passButton = setUpPassButton();
     setUpLabel();
     attributesOfPlayer.add(this.name, 0, 0);
     attributesOfPlayer.add(frame, 0, 1);
     attributesOfPlayer.add(doneButton, 1, 1);
-    attributesOfPlayer.add(skipButton, 2, 1);
+    attributesOfPlayer.add(passButton, 2, 1);
     GridPane.setMargin(doneButton, new Insets(0, 15, 0, 15));
     updateAttributes();
+  }
+
+  public Button getDoneButton() {
+    return doneButton;
+  }
+
+  public Button getPassButton() {
+    return passButton;
   }
 
   private void updateAttributes() {
@@ -79,25 +89,43 @@ public class Player {
     if (isMyTurn.getValue()) {
       doneButton.setTextFill(Color.GREEN);
       doneButton.setDisable(false);
-      skipButton.setTextFill(Color.GREEN);
-      skipButton.setDisable(false);
+      passButton.setTextFill(Color.GREEN);
+      passButton.setDisable(false);
       name.setTextFill(Color.GREEN);
     } else {
       doneButton.setTextFill(Color.GRAY);
       doneButton.setDisable(true);
-      skipButton.setTextFill(Color.GRAY);
-      skipButton.setDisable(true);
+      passButton.setTextFill(Color.GRAY);
+      passButton.setDisable(true);
       name.setTextFill(Color.GRAY);
     }
   }
-  private Button setUpSkipButton() {
-    Button skipButton = new Button("Skip");
-    skipButton.setFont(Font.font("Ariel", FontWeight.BOLD, 14));
-    skipButton.setWrapText(true);
-    skipButton.setTextOverrun(OverrunStyle.CLIP);
-    skipButton.setOnMouseClicked(mouseEvent -> {
+
+  private Button setUpPassButton() {
+    Button passButton = new Button("Pass");
+    passButton.setFont(Font.font("Ariel", FontWeight.BOLD, 14));
+    passButton.setWrapText(true);
+    passButton.setTextOverrun(OverrunStyle.CLIP);
+    passButton.setOnAction(actionEvent -> {
+      if (Board.getInstance().getTilesPlacedOnCurrentTurn().size() != 0) {
+        Scrabble.logs.setText("You cannot pass turn if there are your tiles on the board.");
+      } else {
+        replaceAllReplacingTiles();
+        isMyTurn.setValue(false);
+      }
     });
-    return skipButton;
+    return passButton;
+  }
+
+  private void replaceAllReplacingTiles() {
+    for (Node node :
+            frame.getChildren()) {
+      FrameTile tileToReplace = (FrameTile) node;
+      if (tileToReplace.isExchangeable()) {
+        frame.getChildren().set(frame.getChildren().indexOf(tileToReplace)
+                , Pool.getInstance().replaceTile(tileToReplace));
+      }
+    }
   }
 
 
@@ -106,13 +134,19 @@ public class Player {
     doneButton.setFont(Font.font("Ariel", FontWeight.BOLD, 14));
     doneButton.setWrapText(true);
     doneButton.setTextOverrun(OverrunStyle.CLIP);
-    doneButton.setOnMouseClicked(mouseEvent -> {
+    doneButton.setOnAction(mouseEvent -> {
       if (Board.getInstance().wordPlacedCorrectly()) {
+        updateScore();
         Board.getInstance().makePlacedTilesNotDraggable();
         isMyTurn.setValue(false);
       }
     });
     return doneButton;
+  }
+
+  private void updateScore() {
+    increaseScoreBy(Board.getInstance().calculateWordScore());
+    name.setText(String.format("%s(%d)", nameOfPlayer, score));
   }
 
   public boolean isMyTurn() {
