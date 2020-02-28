@@ -23,6 +23,8 @@ class Tile extends Label {
   Tile(char letter) {
     this();
     setLetter(letter);
+    Label label = new Label(String.valueOf(Pool.getValueOfLetter(letter)));
+
   }
 
   Tile() {
@@ -69,6 +71,14 @@ class Tile extends Label {
     content.putString(this.getText());
     dragboard.setContent(content);
     Board.draggedTile = this;
+  }
+
+  @Override
+  public String toString() {
+    if (isEmpty()) {
+      return " ";
+    }
+    return String.valueOf(getLetter());
   }
 
   boolean isEmpty() {

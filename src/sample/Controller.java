@@ -9,7 +9,6 @@ public class Controller {
   Label myLabel;
 
   public void method() {
-    System.out.println("Get me back!!!");
   }
 
 }

@@ -1,14 +1,18 @@
 package sample;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
@@ -44,14 +48,49 @@ public class Scrabble extends Application {
     public void start(Stage primaryStage) throws Exception {
         primaryStage.setTitle("Scrabble");
         primaryStage.getIcons().add(new Image("Resources/Scrabble.png"));
-        Scene scene = new Scene(drawUI(), 900, 600);
+        Scene scene = new Scene(drawUI(), 975, 480);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
 
     private Parent drawUI() {
-        FlowPane flowPane = setUpFlowPane();
-        return flowPane;
+        //FlowPane flowPane = setUpFlowPane();
+        GridPane gridPane = setUpGridPane();
+        return gridPane;
+        //return flowPane;
+    }
+
+    private GridPane setUpGridPane() {
+        GridPane gridPane = new GridPane();
+        gridPane.setHgap(50);
+        GridPane.setMargin(Board.getInstance(), new Insets(20, 0, 0, 20));
+        VBox framesOfPlayers = getFramesOfPlayers();
+        framesOfPlayers.setSpacing(30);
+        GridPane.setMargin(framesOfPlayers, new Insets(50, 0, 0, 0));
+        framesOfPlayers.getChildren().add(logs);
+        framesOfPlayers.getChildren().add(createConsole());
+        gridPane.add(Board.getInstance(), 0, 0);
+        gridPane.add(framesOfPlayers, 1, 0);
+        return gridPane;
+    }
+
+    private TextField createConsole() {
+        TextField console = new TextField();
+        console.setPromptText("Type HELP, for help");
+        console.setOnKeyPressed(keyEvent -> {
+            if (keyEvent.getCode().equals(KeyCode.ENTER)) {
+                switch (console.getText().toUpperCase()) {
+                    case "HELP":
+                        logs.setText("(not) displaying help  :)");
+                        break;
+                    case "QUIT":
+                        Platform.exit();
+                    default:
+                        logs.setText("Unknown Command, try 'HELP'");
+                }
+            }
+        });
+        return console;
     }
 
     private FlowPane setUpFlowPane() {

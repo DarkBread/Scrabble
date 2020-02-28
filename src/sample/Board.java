@@ -16,17 +16,9 @@ class Board extends GridPane {
   private boolean firstWord = true;
 
   private Board() {
-    for (int i = 0; i < BOARD_SIZE; i++) {
-      for (int j = 0; j < BOARD_SIZE; j++) {
-        BoardTile current = new BoardTile();
-        this.add(current, i, j);
-
-      }
-    }
     drawGameBoard();
     this.setStyle("-fx-border-color: #4276ff;-fx-border-width: 3");
   }
-
   public static void setDragLogic(Tile tile) {
     tile.setOnDragDropped(dragEvent -> {
       if (tile.isEmpty()) {
@@ -100,6 +92,15 @@ class Board extends GridPane {
       add(new BonusTile(BonusTile.Type.DOUBLE_LETTER_SCORE), 2, i);
       add(new BonusTile(BonusTile.Type.DOUBLE_LETTER_SCORE), 12, i);
     }
+    //add missing tiles
+    for (int i = 0; i < BOARD_SIZE; i++) {
+      for (int j = 0; j < BOARD_SIZE; j++) {
+        if (getTileByRowColumnIndex(j, i) == null) {
+          this.add(new BoardTile(), i, j);
+        }
+      }
+    }
+    printGameBoardToConsole();
   }
 
   public void makePlacedTilesNotDraggable() {
@@ -113,10 +114,11 @@ class Board extends GridPane {
       placedTile.setOnDragExited(null);
       placedTile.setDraggable(false);
     }
+    printGameBoardToConsole();
     tilesPlacedOnCurrentTurn.clear();
   }
 
-  public boolean wordPlacedCorrectly() {
+  boolean wordPlacedCorrectly() {
     if (getStartTile().isEmpty()) {
       Scrabble.logs.setText("First Word Should Be Placed At The Start Tile");
       return false;
@@ -139,13 +141,8 @@ class Board extends GridPane {
         }
       }
       if (!thereIsConnectingTile()) {
-        for (Tile tile :
-                tilesPlacedOnCurrentTurn) {
-          System.out.println(tile.getLetter());
-        }
         Tile connecting = getTileByRowColumnIndex(GridPane.getRowIndex(tilesPlacedOnCurrentTurn.get(0)),
                 GridPane.getColumnIndex(tilesPlacedOnCurrentTurn.get(0)) - 1);
-        System.out.println(connecting.getLetter());
         if (!connecting.isDraggable()) {
           tilesPlacedOnCurrentTurn.add(0, connecting);
         }
@@ -188,11 +185,6 @@ class Board extends GridPane {
   private boolean thereIsConnectingTile() {
     for (Tile tile :
             tilesPlacedOnCurrentTurn) {
-      System.out.println(tile.getLetter() + ":" + tile.isDraggable());
-    }
-    for (Tile tile :
-            tilesPlacedOnCurrentTurn) {
-      System.out.println(tile.getLetter());
       if (!tile.isDraggable()) {
         return true;
       }
@@ -201,6 +193,11 @@ class Board extends GridPane {
   }
 
   private boolean wordPlacedVertically() {
+    if (tilesPlacedOnCurrentTurn.size() == 1) {
+      if (!thereIsConnectingTileFromAbove()) {
+        return false;
+      }
+    }
     for (int i = 0; i < tilesPlacedOnCurrentTurn.size() - 1; i++) {
       if (!(GridPane.getColumnIndex(tilesPlacedOnCurrentTurn.get(i)).equals
               (GridPane.getColumnIndex(tilesPlacedOnCurrentTurn.get(i + 1))))) {
@@ -211,6 +208,11 @@ class Board extends GridPane {
   }
 
   private boolean wordPlacedHorizontally() {
+    if (tilesPlacedOnCurrentTurn.size() == 1) {
+      if (!thereIsConnectingTileToLeft()) {
+        return false;
+      }
+    }
     for (int i = 0; i < tilesPlacedOnCurrentTurn.size() - 1; i++) {
       if (!(GridPane.getRowIndex(tilesPlacedOnCurrentTurn.get(i)).equals
               (GridPane.getRowIndex(tilesPlacedOnCurrentTurn.get(i + 1))))) {
@@ -220,6 +222,29 @@ class Board extends GridPane {
     return true;
   }
 
+  private boolean thereIsConnectingTileToLeft() {
+    int row = GridPane.getRowIndex(tilesPlacedOnCurrentTurn.get(0));
+    int column = GridPane.getColumnIndex(tilesPlacedOnCurrentTurn.get(0)) - 1;
+    Tile candidateForConnectingTile = getTileByRowColumnIndex(row, column);
+    return !candidateForConnectingTile.isDraggable();
+  }
+
+  private boolean thereIsConnectingTileFromAbove() {
+    int row = GridPane.getRowIndex(tilesPlacedOnCurrentTurn.get(0)) - 1;
+    int column = GridPane.getColumnIndex(tilesPlacedOnCurrentTurn.get(0));
+    Tile candidateForConnectingTile = getTileByRowColumnIndex(row, column);
+    return !candidateForConnectingTile.isDraggable();
+  }
+
+  private void printGameBoardToConsole() {
+    for (int i = 0; i < BOARD_SIZE; i++) {
+      for (int j = 0; j < BOARD_SIZE; j++) {
+        System.out.print(getTileByRowColumnIndex(i, j) + "|");
+      }
+      System.out.println();
+    }
+    System.out.println("===============================");
+  }
   private Tile getStartTile() {
     return getTileByRowColumnIndex(BOARD_SIZE / 2, BOARD_SIZE / 2);
   }

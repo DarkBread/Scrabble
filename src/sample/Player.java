@@ -6,6 +6,7 @@ import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.OverrunStyle;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -92,6 +93,8 @@ public class Player {
   private Button setUpSkipButton() {
     Button skipButton = new Button("Skip");
     skipButton.setFont(Font.font("Ariel", FontWeight.BOLD, 14));
+    skipButton.setWrapText(true);
+    skipButton.setTextOverrun(OverrunStyle.CLIP);
     skipButton.setOnMouseClicked(mouseEvent -> {
     });
     return skipButton;
@@ -101,6 +104,8 @@ public class Player {
   private Button setUpDoneButton() {
     Button doneButton = new Button("Done");
     doneButton.setFont(Font.font("Ariel", FontWeight.BOLD, 14));
+    doneButton.setWrapText(true);
+    doneButton.setTextOverrun(OverrunStyle.CLIP);
     doneButton.setOnMouseClicked(mouseEvent -> {
       if (Board.getInstance().wordPlacedCorrectly()) {
         Board.getInstance().makePlacedTilesNotDraggable();
