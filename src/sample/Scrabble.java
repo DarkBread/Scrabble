@@ -15,6 +15,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
@@ -29,7 +30,7 @@ public class Scrabble extends Application {
         players = addPlayers();
         new GameProcess().start();
         logs.setEditable(false);
-        logs.setFont(Font.font("Arial", 14));
+        logs.setFont(Font.font("Arial", 17));
         logs.setText(logs.getText() + "Start Of The Game");
     }
 
@@ -88,6 +89,7 @@ public class Scrabble extends Application {
     private TextField createConsole() {
         TextField console = new TextField();
         console.setPromptText("Type HELP, for help");
+        console.setFont(Font.font("Ariel", FontWeight.BOLD, 14));
         console.setOnKeyPressed(keyEvent -> {
             if (keyEvent.getCode().equals(KeyCode.ENTER)) {
                 String consoleInput = console.getText().toUpperCase().trim();
@@ -129,28 +131,43 @@ public class Scrabble extends Application {
             getCurrentPlayer().getPassButton().fire();
             return true;
         }
-    /*if (consoleInput.matches(placingWordPattern)) {
-        int rowPosition = commands[1].charAt(0) - 'A';
-        int columnPosition = Integer.parseInt(commands[1].substring(1));
-        if (commands[2].charAt(0) == 'A' || commands[2].equals("ACROSS")) {
-            placeWordHorizontally(Arrays.copyOfRange(commands, 3, commands.length), rowPosition, columnPosition);
+        if (consoleInput.matches(placingWordPattern)) {
+            int rowPosition = commands[0].charAt(0) - 'A';
+            int columnPosition = Integer.parseInt(commands[0].substring(1)) - 1;
+            if (commands[1].charAt(0) == 'A' || commands[1].equals("ACROSS")) {
+                placeWordHorizontally(commands[2], rowPosition, columnPosition);
         } else {
-            placeWordVertically();
+                placeWordVertically(commands[2], rowPosition, columnPosition);
         }
-    }*/
+        }
         return false;
     }
 
-/*    private void placeWordHorizontally(String[] letters, int startingRow, int startingColumn) {
-        for (int i = 0; i < letters.length; i++) {
-            //made checks
-            FrameTile frameTile = getCurrentPlayer().getFrame().getFrameTileWithLetter(letters[i].charAt(0));
+    private void placeWordHorizontally(String letters, int startingRow, int startingColumn) {
+        for (int i = 0; i < letters.length(); i++) {
+            //make checks
+            FrameTile frameTile = getCurrentPlayer().getFrame().getFrameTileWithLetter(letters.charAt(i));
             if (frameTile != null) {
-                frameTile.fireEvent(new MouseEvent(MouseEvent.DRAG_DETECTED,));
+                Board.draggedTile = frameTile;
+                Board.replaceTileOnBoardIfEmpty(Board.getInstance().getTileByRowColumnIndex(startingRow, startingColumn + i));
+                getCurrentPlayer().getFrame().removeFirstTileWithLetter(frameTile.getLetter());
             }
-            Board.getInstance().getTileByRowColumnIndex(startingRow, startingColumn).fireEvent();
         }
-    }*/
+        getCurrentPlayer().getDoneButton().fire();
+    }
+
+    private void placeWordVertically(String letters, int startingRow, int startingColumn) {
+        for (int i = 0; i < letters.length(); i++) {
+            //made checks
+            FrameTile frameTile = getCurrentPlayer().getFrame().getFrameTileWithLetter(letters.charAt(i));
+            if (frameTile != null) {
+                Board.draggedTile = frameTile;
+                Board.replaceTileOnBoardIfEmpty(Board.getInstance().getTileByRowColumnIndex(startingRow + i, startingColumn));
+                getCurrentPlayer().getFrame().removeFirstTileWithLetter(frameTile.getLetter());
+            }
+        }
+        getCurrentPlayer().getDoneButton().fire();
+    }
 
     private VBox getFramesOfPlayers() {
         VBox framesOfPlayers = new VBox();

@@ -15,15 +15,14 @@ class Board extends GridPane {
   private ArrayList<Tile> tilesPlacedOnCurrentTurn = new ArrayList<>();
   private boolean firstWord = true;
 
+  private Board() {
+    drawGameBoard();
+    this.setStyle("-fx-border-color: #4276ff;-fx-border-width: 3");
+  }
+
   public static void setDragLogic(Tile tile) {
     tile.setOnDragDropped(dragEvent -> {
-      if (tile.isEmpty()) {
-        tile.setLetter(draggedTile.getLetter());
-        getInstance().tilesPlacedOnCurrentTurn.add(tile);
-        dragEvent.setDropCompleted(true);
-      } else {
-        dragEvent.setDropCompleted(false);
-      }
+      dragEvent.setDropCompleted(replaceTileOnBoardIfEmpty(tile));
     });
     tile.setOnDragDone(dragEvent -> {
       if (dragEvent.getTransferMode() == TransferMode.MOVE) {
@@ -33,13 +32,14 @@ class Board extends GridPane {
     });
   }
 
-  private Board() {
-    drawGameBoard();
-    this.setStyle("-fx-border-color: #4276ff;-fx-border-width: 3");
-  }
-
-  public ArrayList<Tile> getTilesPlacedOnCurrentTurn() {
-    return tilesPlacedOnCurrentTurn;
+  public static boolean replaceTileOnBoardIfEmpty(Tile tile) {
+    if (tile.isEmpty()) {
+      tile.setLetter(draggedTile.getLetter());
+      getInstance().tilesPlacedOnCurrentTurn.add(tile);
+      return true;
+    } else {
+      return false;
+    }
   }
 
   public static Board getInstance() {
@@ -47,6 +47,10 @@ class Board extends GridPane {
       board = new Board();
     }
     return board;
+  }
+
+  public ArrayList<Tile> getTilesPlacedOnCurrentTurn() {
+    return tilesPlacedOnCurrentTurn;
   }
 
   private void drawGameBoard() {
@@ -138,6 +142,7 @@ class Board extends GridPane {
                 (GridPane.getColumnIndex(tilesPlacedOnCurrentTurn.get(i + 1)))) {
           int row = GridPane.getRowIndex(tilesPlacedOnCurrentTurn.get(i));
           int column = GridPane.getColumnIndex(tilesPlacedOnCurrentTurn.get(i)) + 1;
+
           Tile candidateForConnectingTile = getTileByRowColumnIndex(row, column);
           if (!candidateForConnectingTile.isDraggable()) {
             int rowOfConnectingTile = GridPane.getRowIndex(candidateForConnectingTile);
@@ -149,9 +154,12 @@ class Board extends GridPane {
         }
       }
       if (!thereIsConnectingTile()) {
-
-        Tile connecting = getTileByRowColumnIndex(GridPane.getRowIndex(tilesPlacedOnCurrentTurn.get(0)),
-                GridPane.getColumnIndex(tilesPlacedOnCurrentTurn.get(0)) - 1);
+        int rowOfConnectingTile = GridPane.getRowIndex(tilesPlacedOnCurrentTurn.get(0));
+        int columnOfConnectingTile = GridPane.getColumnIndex(tilesPlacedOnCurrentTurn.get(0)) - 1;
+        if (columnOfConnectingTile < 0) {
+          return false;
+        }
+        Tile connecting = getTileByRowColumnIndex(rowOfConnectingTile, columnOfConnectingTile);
         if (!connecting.isDraggable()) {
           tilesPlacedOnCurrentTurn.add(0, connecting);
         }
@@ -174,8 +182,13 @@ class Board extends GridPane {
         }
       }
       if (!thereIsConnectingTile()) {
-        Tile connecting = getTileByRowColumnIndex(GridPane.getRowIndex(tilesPlacedOnCurrentTurn.get(0)) - 1,
-                GridPane.getColumnIndex(tilesPlacedOnCurrentTurn.get(0)));
+        int rowOfConnectingTile = GridPane.getRowIndex(tilesPlacedOnCurrentTurn.get(0)) - 1;
+        int columnOfConnectingTile = GridPane.getColumnIndex(tilesPlacedOnCurrentTurn.get(0));
+        if (rowOfConnectingTile < 0) {
+          return false;
+        }
+        Tile connecting = getTileByRowColumnIndex(rowOfConnectingTile, columnOfConnectingTile);
+
         if (!connecting.isDraggable()) {
           tilesPlacedOnCurrentTurn.add(0, connecting);
         }
@@ -254,6 +267,7 @@ class Board extends GridPane {
     }
     System.out.println("===============================");
   }
+
   private Tile getStartTile() {
     return getTileByRowColumnIndex(BOARD_SIZE / 2, BOARD_SIZE / 2);
   }
