@@ -194,6 +194,10 @@ class Board extends GridPane {
     tilesPlacedOnCurrentTurn.clear();
   }
 
+  public void setFirstWord(boolean firstWord) {
+    this.firstWord = firstWord;
+  }
+
   boolean wordPlacedCorrectly() {
     if (tilesPlacedOnCurrentTurn.isEmpty()) {
       return false;
@@ -246,11 +250,11 @@ class Board extends GridPane {
     } else {
       return false;
     }
-    if (!connectingTileWasFound && !firstWord) {
+    if (!connectingTileWasFound && getStartTile().isEmpty()) {
       return false;
     }
-    firstWord = false;
     Scrabble.logs.setText("");
+    firstWord = false;
     return true;
   }
 

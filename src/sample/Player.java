@@ -23,16 +23,21 @@ public class Player {
   private Label name;
   private BooleanProperty isMyTurn;
   private BooleanProperty challengeMode;
+  private boolean skipNextTurn;
+  private boolean needsToRemoveAllTilesFromBoardAndSkip;
 
   public Player(String name) {
     this.name = new Label(name);
     isMyTurn = new SimpleBooleanProperty(false);
     isMyTurn.addListener(observable -> {
       updateAttributes();
-      if (!isMyTurn.get()) {
+      if (!isMyTurn.get() && !needsToRemoveAllTilesFromBoardAndSkip) {
         updateScore();
         Board.getInstance().makePlacedTilesNotDraggable();
         refillFrameWithTiles();
+      } else if (isMyTurn.get() && skipNextTurn) {
+        skipNextTurn = false;
+        Scrabble.passTurnToNextPlayer();
       }
     });
     challengeMode = new SimpleBooleanProperty(false);
@@ -158,6 +163,17 @@ public class Player {
     challengeButton.setTextOverrun(OverrunStyle.CLIP);
     challengeButton.setTextFill(Color.ORANGE);
     challengeButton.setOnAction(mouseEvent -> {
+      if (Board.getInstance().checkIfThereIsWord(Board.getWord())) {
+        skipNextTurn = true;
+        Scrabble.logs.setText(String.format("Word: {%s} exists, player: %s skips his next turn", Board.getWord(), getName()));
+        Scrabble.passTurnToNextPlayer();
+      } else {
+        Scrabble.logs.setText(String.format("Word: {%s} DOESN'T exists, player: %s needs to remove all tiles from board and pass his turn", Board.getWord(), Scrabble.getCurrentPlayer().getName()));
+        Scrabble.getCurrentPlayer().getDoneButton().setDisable(true);
+        Scrabble.getCurrentPlayer().getPassButton().setDisable(false);
+        Scrabble.getCurrentPlayer().needsToRemoveAllTilesFromBoardAndSkip = true;
+      }
+      challengeMode.setValue(false);
     });
     return challengeButton;
   }
@@ -170,8 +186,6 @@ public class Player {
     doneButton.setOnAction(mouseEvent -> {
       if (Board.getInstance().wordPlacedCorrectly()) {
         activateChallengeMode();
-
-
 /*      updateScore();
         Board.getInstance().makePlacedTilesNotDraggable();
         isMyTurn.setValue(false);
