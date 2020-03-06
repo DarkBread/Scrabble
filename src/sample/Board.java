@@ -4,6 +4,10 @@ import javafx.scene.Node;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.GridPane;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 
@@ -47,6 +51,69 @@ class Board extends GridPane {
       board = new Board();
     }
     return board;
+  }
+
+  static void placeWordVertically(String letters, int startingRow, int startingColumn) {
+    for (int i = 0; i < letters.length(); i++) {
+      //made checks
+      FrameTile frameTile = Scrabble.getCurrentPlayer().getFrame().getFrameTileWithLetter(letters.charAt(i));
+      if (frameTile != null) {
+        Board.draggedTile = frameTile;
+        Board.replaceTileOnBoardIfEmpty(Board.getInstance().getTileByRowColumnIndex(startingRow + i, startingColumn));
+        Scrabble.getCurrentPlayer().getFrame().removeFirstTileWithLetter(frameTile.getLetter());
+      }
+    }
+    Scrabble.getCurrentPlayer().getDoneButton().fire();
+  }
+
+  static void placeWordHorizontally(String letters, int startingRow, int startingColumn) {
+    for (int i = 0; i < letters.length(); i++) {
+      //make checks
+      FrameTile frameTile = Scrabble.getCurrentPlayer().getFrame().getFrameTileWithLetter(letters.charAt(i));
+      if (frameTile != null) {
+        Board.draggedTile = frameTile;
+        Board.replaceTileOnBoardIfEmpty(Board.getInstance().getTileByRowColumnIndex(startingRow, startingColumn + i));
+        Scrabble.getCurrentPlayer().getFrame().removeFirstTileWithLetter(frameTile.getLetter());
+      }
+    }
+    Scrabble.getCurrentPlayer().getDoneButton().fire();
+  }
+
+  public static String getWord() {
+    StringBuilder sb = new StringBuilder();
+    for (Tile tile :
+            getInstance().tilesPlacedOnCurrentTurn) {
+      sb.append(tile.getLetter());
+    }
+    return sb.toString();
+  }
+
+  public boolean thereAreDraggableTilesOnBoard() {
+    for (Tile tile :
+            tilesPlacedOnCurrentTurn) {
+      if (tile.isDraggable()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public boolean checkIfThereIsWord(String word) {
+    try (BufferedReader fileReader = new BufferedReader(new FileReader("src/Resources/words.txt"))) {
+      String readWord;
+      while ((readWord = fileReader.readLine()) != null) {
+        if (readWord.trim().equalsIgnoreCase(word)) {
+          Scrabble.logs.setText(Scrabble.logs.getText() + "\nThere is such a word");
+          return true;
+        }
+      }
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    Scrabble.logs.setText(Scrabble.logs.getText() + "\nThere is NO such a word");
+    return false;
   }
 
   public ArrayList<Tile> getTilesPlacedOnCurrentTurn() {
@@ -135,68 +202,51 @@ class Board extends GridPane {
       Scrabble.logs.setText("First Word Should Be Placed At The Start Tile");
       return false;
     }
+    boolean connectingTileWasFound = false;
     if (wordPlacedHorizontally()) {
       tilesPlacedOnCurrentTurn.sort(Comparator.comparingInt(GridPane::getColumnIndex));
       for (int i = 0; i < tilesPlacedOnCurrentTurn.size() - 1; i++) {
-        if (GridPane.getColumnIndex(tilesPlacedOnCurrentTurn.get(i)) + 1 !=
-                (GridPane.getColumnIndex(tilesPlacedOnCurrentTurn.get(i + 1)))) {
-          int row = GridPane.getRowIndex(tilesPlacedOnCurrentTurn.get(i));
-          int column = GridPane.getColumnIndex(tilesPlacedOnCurrentTurn.get(i)) + 1;
-
-          Tile candidateForConnectingTile = getTileByRowColumnIndex(row, column);
-          if (!candidateForConnectingTile.isDraggable()) {
-            int rowOfConnectingTile = GridPane.getRowIndex(candidateForConnectingTile);
-            int columnOfConnectingTile = GridPane.getColumnIndex(candidateForConnectingTile);
-            tilesPlacedOnCurrentTurn.add(i + 1, getTileByRowColumnIndex(rowOfConnectingTile, columnOfConnectingTile));
+        if (twoTilesAreNotNextToEachOtherAtTheSameRow(i)) {
+          Tile connectingTile = getPossibleConnectingTileToRight(i);
+          if (connectingTile != null) {
+            tilesPlacedOnCurrentTurn.add(i + 1, connectingTile);
+            connectingTileWasFound = true;
           } else {
             return false;
           }
         }
       }
-      if (!thereIsConnectingTile()) {
-        int rowOfConnectingTile = GridPane.getRowIndex(tilesPlacedOnCurrentTurn.get(0));
-        int columnOfConnectingTile = GridPane.getColumnIndex(tilesPlacedOnCurrentTurn.get(0)) - 1;
-        if (columnOfConnectingTile < 0) {
-          return false;
-        }
-        Tile connecting = getTileByRowColumnIndex(rowOfConnectingTile, columnOfConnectingTile);
-        if (!connecting.isDraggable()) {
-          tilesPlacedOnCurrentTurn.add(0, connecting);
+      if (!connectingTileWasFound) {
+        Tile connectingTile = getPossibleConnectingTileToLeft();
+        if (connectingTile != null) {
+          tilesPlacedOnCurrentTurn.add(0, connectingTile);
+          connectingTileWasFound = true;
         }
       }
     } else if (wordPlacedVertically()) {
       tilesPlacedOnCurrentTurn.sort(Comparator.comparingInt(GridPane::getRowIndex));
       for (int i = 0; i < tilesPlacedOnCurrentTurn.size() - 1; i++) {
-        if (GridPane.getRowIndex(tilesPlacedOnCurrentTurn.get(i)) + 1 !=
-                (GridPane.getRowIndex(tilesPlacedOnCurrentTurn.get(i + 1)))) {
-          int row = GridPane.getRowIndex(tilesPlacedOnCurrentTurn.get(i)) + 1;
-          int column = GridPane.getColumnIndex(tilesPlacedOnCurrentTurn.get(i));
-          Tile candidateForConnectingTile = getTileByRowColumnIndex(row, column);
-          if (!candidateForConnectingTile.isDraggable()) {
-            int rowOfConnectingTile = GridPane.getRowIndex(candidateForConnectingTile);
-            int columnOfConnectingTile = GridPane.getColumnIndex(candidateForConnectingTile);
-            tilesPlacedOnCurrentTurn.add(i + 1, getTileByRowColumnIndex(rowOfConnectingTile, columnOfConnectingTile));
+        if (twoTilesAreNotNextToEachOtherAtTheSameColumn(i)) {
+          Tile connectingTile = getPossibleConnectingTileFromBelow(i);
+          if (connectingTile != null) {
+            tilesPlacedOnCurrentTurn.add(i + 1, connectingTile);
+            connectingTileWasFound = true;
           } else {
             return false;
           }
         }
       }
-      if (!thereIsConnectingTile()) {
-        int rowOfConnectingTile = GridPane.getRowIndex(tilesPlacedOnCurrentTurn.get(0)) - 1;
-        int columnOfConnectingTile = GridPane.getColumnIndex(tilesPlacedOnCurrentTurn.get(0));
-        if (rowOfConnectingTile < 0) {
-          return false;
-        }
-        Tile connecting = getTileByRowColumnIndex(rowOfConnectingTile, columnOfConnectingTile);
-
-        if (!connecting.isDraggable()) {
+      if (!connectingTileWasFound) {
+        Tile connecting = getPossibleConnectingTileFromAbove();
+        if (connecting != null) {
           tilesPlacedOnCurrentTurn.add(0, connecting);
+          connectingTileWasFound = true;
         }
       }
     } else {
       return false;
     }
-    if (!thereIsConnectingTile() && !firstWord) {
+    if (!connectingTileWasFound && !firstWord) {
       return false;
     }
     firstWord = false;
@@ -204,21 +254,66 @@ class Board extends GridPane {
     return true;
   }
 
-  private boolean thereIsConnectingTile() {
-    for (Tile tile :
-            tilesPlacedOnCurrentTurn) {
-      if (!tile.isDraggable()) {
-        return true;
-      }
+  private Tile getPossibleConnectingTileFromAbove() {
+    int rowOfConnectingTile = GridPane.getRowIndex(tilesPlacedOnCurrentTurn.get(0)) - 1;
+    int columnOfConnectingTile = GridPane.getColumnIndex(tilesPlacedOnCurrentTurn.get(0));
+    if (rowOfConnectingTile < 0) {
+      return null;
     }
-    return false;
+    Tile connecting = getTileByRowColumnIndex(rowOfConnectingTile, columnOfConnectingTile);
+    if (connecting.isEmpty()) {
+      return null;
+    }
+    return connecting;
+  }
+
+  private Tile getPossibleConnectingTileFromBelow(int indexOfConnectingTileFromAbove) {
+    int row = GridPane.getRowIndex(tilesPlacedOnCurrentTurn.get(indexOfConnectingTileFromAbove)) + 1;
+    int column = GridPane.getColumnIndex(tilesPlacedOnCurrentTurn.get(indexOfConnectingTileFromAbove));
+    Tile connecting = getTileByRowColumnIndex(row, column);
+    if (connecting.isEmpty()) {
+      return null;
+    }
+    return connecting;
+  }
+
+  private boolean twoTilesAreNotNextToEachOtherAtTheSameColumn(int i) {
+    return GridPane.getRowIndex(tilesPlacedOnCurrentTurn.get(i)) + 1 !=
+            (GridPane.getRowIndex(tilesPlacedOnCurrentTurn.get(i + 1)));
+  }
+
+  private Tile getPossibleConnectingTileToLeft() {
+    int rowOfConnectingTile = GridPane.getRowIndex(tilesPlacedOnCurrentTurn.get(0));
+    int columnOfConnectingTile = GridPane.getColumnIndex(tilesPlacedOnCurrentTurn.get(0)) - 1;
+    if (columnOfConnectingTile < 0) {
+      return null;
+    }
+    Tile connecting = getTileByRowColumnIndex(rowOfConnectingTile, columnOfConnectingTile);
+    if (connecting.isEmpty()) {
+      return null;
+    }
+    return connecting;
+  }
+
+  private Tile getPossibleConnectingTileToRight(int indexOfTileToLeftFromConnectingTile) {
+    int row = GridPane.getRowIndex(tilesPlacedOnCurrentTurn.get(indexOfTileToLeftFromConnectingTile));
+    int column = GridPane.getColumnIndex(tilesPlacedOnCurrentTurn.get(indexOfTileToLeftFromConnectingTile)) + 1;
+    Tile candidateForConnectingTile = getTileByRowColumnIndex(row, column);
+    if (candidateForConnectingTile.isEmpty()) {
+      return null;
+    } else {
+      return candidateForConnectingTile;
+    }
+  }
+
+  private boolean twoTilesAreNotNextToEachOtherAtTheSameRow(int indexOfFirstTile) {
+    return GridPane.getColumnIndex(tilesPlacedOnCurrentTurn.get(indexOfFirstTile)) + 1 !=
+            (GridPane.getColumnIndex(tilesPlacedOnCurrentTurn.get(indexOfFirstTile + 1)));
   }
 
   private boolean wordPlacedVertically() {
-    if (tilesPlacedOnCurrentTurn.size() == 1) {
-      if (!thereIsConnectingTileFromAbove()) {
-        return false;
-      }
+    if (tilesPlacedOnCurrentTurn.size() == 1 && getPossibleConnectingTileFromAbove() == null) {
+      return false;
     }
     for (int i = 0; i < tilesPlacedOnCurrentTurn.size() - 1; i++) {
       if (!(GridPane.getColumnIndex(tilesPlacedOnCurrentTurn.get(i)).equals
@@ -230,10 +325,8 @@ class Board extends GridPane {
   }
 
   private boolean wordPlacedHorizontally() {
-    if (tilesPlacedOnCurrentTurn.size() == 1) {
-      if (!thereIsConnectingTileToLeft()) {
-        return false;
-      }
+    if (tilesPlacedOnCurrentTurn.size() == 1 && getPossibleConnectingTileToLeft() == null) {
+      return false;
     }
     for (int i = 0; i < tilesPlacedOnCurrentTurn.size() - 1; i++) {
       if (!(GridPane.getRowIndex(tilesPlacedOnCurrentTurn.get(i)).equals
@@ -242,20 +335,6 @@ class Board extends GridPane {
       }
     }
     return true;
-  }
-
-  private boolean thereIsConnectingTileToLeft() {
-    int row = GridPane.getRowIndex(tilesPlacedOnCurrentTurn.get(0));
-    int column = GridPane.getColumnIndex(tilesPlacedOnCurrentTurn.get(0)) - 1;
-    Tile candidateForConnectingTile = getTileByRowColumnIndex(row, column);
-    return !candidateForConnectingTile.isDraggable();
-  }
-
-  private boolean thereIsConnectingTileFromAbove() {
-    int row = GridPane.getRowIndex(tilesPlacedOnCurrentTurn.get(0)) - 1;
-    int column = GridPane.getColumnIndex(tilesPlacedOnCurrentTurn.get(0));
-    Tile candidateForConnectingTile = getTileByRowColumnIndex(row, column);
-    return !candidateForConnectingTile.isDraggable();
   }
 
   private void printGameBoardToConsole() {

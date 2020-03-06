@@ -19,28 +19,45 @@ public class Player {
   private GridPane attributesOfPlayer;
   private Button doneButton;
   private Button passButton;
+  private Button challengeButton;
   private Label name;
-  private String nameOfPlayer;
   private BooleanProperty isMyTurn;
+  private BooleanProperty challengeMode;
 
   public Player(String name) {
     this.name = new Label(name);
-    nameOfPlayer = name;
     isMyTurn = new SimpleBooleanProperty(false);
     isMyTurn.addListener(observable -> {
-      refillFrameWithTiles();
       updateAttributes();
+      if (!isMyTurn.get()) {
+        updateScore();
+        Board.getInstance().makePlacedTilesNotDraggable();
+        refillFrameWithTiles();
+      }
+    });
+    challengeMode = new SimpleBooleanProperty(false);
+    challengeMode.addListener(observable -> {
+      updateButtons();
+      if (challengeMode.get()) {
+        getAttributes().getChildren().remove(doneButton);
+        getAttributes().add(challengeButton, 1, 1);
+      } else {
+        getAttributes().getChildren().remove(challengeButton);
+        getAttributes().add(doneButton, 1, 1);
+      }
     });
     frame = new Frame();
     attributesOfPlayer = new GridPane();
     doneButton = setUpDoneButton();
     passButton = setUpPassButton();
+    challengeButton = setUpChallengeButton();
     setUpLabel();
     attributesOfPlayer.add(this.name, 0, 0);
     attributesOfPlayer.add(frame, 0, 1);
     attributesOfPlayer.add(doneButton, 1, 1);
     attributesOfPlayer.add(passButton, 2, 1);
     GridPane.setMargin(doneButton, new Insets(0, 15, 0, 15));
+    GridPane.setMargin(challengeButton, new Insets(0, 15, 0, 15));
     updateAttributes();
   }
 
@@ -92,7 +109,10 @@ public class Player {
       passButton.setTextFill(Color.GREEN);
       passButton.setDisable(false);
       name.setTextFill(Color.GREEN);
-    } else {
+    } else if (challengeMode.get()) {
+      passButton.setTextFill(Color.GREEN);
+      passButton.setDisable(false);
+    } else if (!isMyTurn()) {
       doneButton.setTextFill(Color.GRAY);
       doneButton.setDisable(true);
       passButton.setTextFill(Color.GRAY);
@@ -100,22 +120,25 @@ public class Player {
       name.setTextFill(Color.GRAY);
     }
   }
-
   private Button setUpPassButton() {
     Button passButton = new Button("Pass");
     passButton.setFont(Font.font("Ariel", FontWeight.BOLD, 14));
     passButton.setWrapText(true);
     passButton.setTextOverrun(OverrunStyle.CLIP);
     passButton.setOnAction(actionEvent -> {
-      if (Board.getInstance().getTilesPlacedOnCurrentTurn().size() != 0) {
+      if (challengeMode.get()) {
+        Scrabble.passTurnToNextChallengingPlayer(this);
+      } else if (Board.getInstance().thereAreDraggableTilesOnBoard()) {
         Scrabble.logs.setText("You cannot pass turn if there are your tiles on the board.");
       } else {
         replaceAllReplacingTiles();
+        Scrabble.passTurnToNextPlayer();
         isMyTurn.setValue(false);
       }
     });
     return passButton;
   }
+
 
   private void replaceAllReplacingTiles() {
     for (Node node :
@@ -128,6 +151,16 @@ public class Player {
     }
   }
 
+  private Button setUpChallengeButton() {
+    Button challengeButton = new Button("Challenge");
+    challengeButton.setFont(Font.font("Ariel", FontWeight.BOLD, 14));
+    challengeButton.setWrapText(true);
+    challengeButton.setTextOverrun(OverrunStyle.CLIP);
+    challengeButton.setTextFill(Color.ORANGE);
+    challengeButton.setOnAction(mouseEvent -> {
+    });
+    return challengeButton;
+  }
 
   private Button setUpDoneButton() {
     Button doneButton = new Button("Done");
@@ -136,17 +169,42 @@ public class Player {
     doneButton.setTextOverrun(OverrunStyle.CLIP);
     doneButton.setOnAction(mouseEvent -> {
       if (Board.getInstance().wordPlacedCorrectly()) {
-        updateScore();
+        activateChallengeMode();
+
+
+/*      updateScore();
         Board.getInstance().makePlacedTilesNotDraggable();
         isMyTurn.setValue(false);
+        Scrabble.getNextPlayer();*/
+      } else {
+        Scrabble.logs.setText("Word placed incorrectly");
       }
     });
     return doneButton;
   }
 
+  public void setChallengeMode(boolean challengeMode) {
+    this.challengeMode.set(challengeMode);
+  }
+
+  private void activateChallengeMode() {
+    Scrabble.logs.setText(String.format("Word: %s", Board.getWord()));
+    System.out.println(Board.getInstance().checkIfThereIsWord(Board.getWord()));
+    doneButton.setDisable(true);
+    passButton.setDisable(true);
+    for (Player player :
+            Scrabble.getPlayers()) {
+      if (!player.isMyTurn()) {
+        player.setChallengeMode(true);
+        break;
+      }
+    }
+  }
+
   private void updateScore() {
     increaseScoreBy(Board.getInstance().calculateWordScore());
-    name.setText(String.format("%s(%d)", nameOfPlayer, score));
+    String name = this.name.getText().replaceAll("\\(\\d+\\)", "");
+    this.name.setText(String.format("%s(%d)", name, score));
   }
 
   public boolean isMyTurn() {
@@ -157,10 +215,9 @@ public class Player {
     this.isMyTurn.set(isMyTurn);
   }
 
-  private Label setUpLabel() {
+  private void setUpLabel() {
     name.setTextFill(Color.BLACK);
     name.setFont(Font.font("Arial", FontWeight.BOLD, 16));
-    return name;
   }
 
 
