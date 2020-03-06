@@ -3,6 +3,7 @@ package sample;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
@@ -10,6 +11,7 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
+import javafx.util.Duration;
 
 
 class Tile extends Label {
@@ -32,6 +34,14 @@ class Tile extends Label {
     setAlignment(Pos.CENTER);
   }
 
+  private void setUpTooltip() {
+    if (letter != EMPTY_VALUE) {
+      Tooltip tooltip = new Tooltip(String.valueOf(Pool.getValueOfLetter(letter)));
+      tooltip.setShowDelay(Duration.millis(100));
+      setTooltip(tooltip);
+    }
+  }
+
   static Background getGrayBackground() {
     return grayBackground;
   }
@@ -52,8 +62,10 @@ class Tile extends Label {
     return letter;
   }
 
+
   void setLetter(char letter) {
     this.letter = letter;
+    setUpTooltip();
     setText(String.valueOf(letter));
   }
 

@@ -6,6 +6,7 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
+import javafx.util.Duration;
 
 public class BonusTile extends BoardTile {
 
@@ -14,7 +15,9 @@ public class BonusTile extends BoardTile {
   public BonusTile(Type type) {
     this.type = type;
     setColor();
-    setTooltip(new Tooltip(type.getTooltip()));
+    Tooltip tooltip = new Tooltip(type.getTooltip());
+    tooltip.setShowDelay(Duration.ZERO);
+    setTooltip(tooltip);
     setOnDragExited(dragEvent -> setBackground(background));
   }
 

@@ -11,6 +11,10 @@ public class Pool {
   private static HashMap<Character, Integer> amountInStartingPool;
   private ArrayList<FrameTile> tilesInPool;
 
+  public static HashMap<Character, Integer> getValuesOfLetters() {
+    return valuesOfLetters;
+  }
+
   // initializing value of each letter and amount of each letter in the starting pool
   static {
     valuesOfLetters = new HashMap<>();
