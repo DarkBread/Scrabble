@@ -35,6 +35,7 @@ public class Scrabble extends Application {
     logs.setPrefSize(300, 300);
     logs.setFont(Font.font("Arial", 17));
     logs.setText(logs.getText() + "Start Of The Game");
+    logs.setWrapText(true);
   }
 
   public static ArrayList<Player> getPlayers() {
