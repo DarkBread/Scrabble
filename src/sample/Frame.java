@@ -69,15 +69,6 @@ public class Frame extends HBox {
     return null;
   }
 
-/*  public boolean thereIsTileWithLetter(char letter) {
-    for (Node node : getChildren()) {
-      Tile frameTile = (FrameTile) node;
-      if (frameTile.getLetter() == letter) {
-        return true;
-      }
-    }
-    return false;
-  }*/
 
   public void removeFirstTileWithLetter(char letter) {
     for (Node node : getChildren()) {
