@@ -50,7 +50,7 @@ public class BonusTile extends BoardTile {
     TRIPLE_LETTER_SCORE("Triple Letter Score", 3, false),
     DOUBLE_WORD_SCORE("Double Word Score", 2, true),
     TRIPLE_WORD_SCORE("Triple Word Score", 3, true),
-    START("First Word Should Start From Here", 1, false);
+    START("First Word Should Start From Here", 2, true);
     private String tooltip;
     private int multiplier;
     private boolean wholeWordMultiplier;

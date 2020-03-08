@@ -103,7 +103,7 @@ class Board extends GridPane {
       String readWord;
       while ((readWord = fileReader.readLine()) != null) {
         if (readWord.trim().equalsIgnoreCase(word)) {
-          Scrabble.logs.setText(Scrabble.logs.getText() + "\nThere is such a word");
+          //Scrabble.logs.setText(Scrabble.logs.getText() + "\nThere is such a word");
           return true;
         }
       }
@@ -112,7 +112,7 @@ class Board extends GridPane {
     } catch (IOException e) {
       e.printStackTrace();
     }
-    Scrabble.logs.setText(Scrabble.logs.getText() + "\nThere is NO such a word");
+    //Scrabble.logs.setText(Scrabble.logs.getText() + "\nThere is NO such a word");
     return false;
   }
 

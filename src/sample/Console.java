@@ -8,7 +8,14 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
 public class Console extends TextField {
+
+  final static String RULES = "src/Resources/Rules.txt";
+  final static String HELP = "src/Resources/Help";
 
   public Console() {
     setPromptText("Type HELP, for help");
@@ -17,8 +24,11 @@ public class Console extends TextField {
       if (keyEvent.getCode().equals(KeyCode.ENTER)) {
         String consoleInput = getText().toUpperCase().trim();
         switch (consoleInput) {
+          case "RULES":
+            Scrabble.logs.setText(readRules(RULES));
+            break;
           case "HELP":
-            Scrabble.logs.setText("(not) displaying help  :)");
+            Scrabble.logs.setText(readRules(HELP));
             break;
           case "QUIT":
             Platform.exit();
@@ -30,6 +40,25 @@ public class Console extends TextField {
         }
       }
     });
+  }
+
+  private String readRules(String filePath) {
+    StringBuilder stringBuilder = null;
+    try (BufferedReader bufferedReader = new BufferedReader(new FileReader(filePath))) {
+      String line;
+      stringBuilder = new StringBuilder();
+      while ((line = bufferedReader.readLine()) != null) {
+        stringBuilder.append(line);
+        stringBuilder.append("\n");
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    if (stringBuilder != null) {
+      return stringBuilder.toString();
+    } else {
+      return "";
+    }
   }
 
   private static boolean tryToParse(String consoleInput) {
