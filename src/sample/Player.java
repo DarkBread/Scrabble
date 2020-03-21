@@ -55,7 +55,7 @@ public class Player {
     attributesOfPlayer = new GridPane();
     doneButton = setUpDoneButton();
     passButton = setUpPassButton();
-    challengeButton = setUpChallengeButton();
+   challengeButton = setUpChallengeButton();
     setUpLabel();
     attributesOfPlayer.add(this.name, 0, 0);
     attributesOfPlayer.add(frame, 0, 1);
@@ -131,9 +131,9 @@ public class Player {
     passButton.setWrapText(true);
     passButton.setTextOverrun(OverrunStyle.CLIP);
     passButton.setOnAction(actionEvent -> {
-      if (challengeMode.get()) {
+      if (challengeMode.get())
         Scrabble.passTurnToNextChallengingPlayer(this);
-      } else if (Board.getInstance().thereAreDraggableTilesOnBoard()) {
+        else if (Board.getInstance().thereAreDraggableTilesOnBoard()) {
         Scrabble.logs.setText("You cannot pass turn if there are your tiles on the board.");
       } else {
         replaceAllReplacingTiles();

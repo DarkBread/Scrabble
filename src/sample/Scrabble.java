@@ -185,7 +185,7 @@ public class Scrabble extends Application {
     ComboBox<String> comboBox = new ComboBox<>();
     comboBox.getItems().addAll("2 Players", "3 Players", "4 Players", "vs AI");
     comboBox.setValue("2 Players");
-    comboBox.setCellFactory(new Callback<>() {
+    comboBox.setCellFactory(new Callback <>() {
       @Override
       public ListCell<String> call(ListView<String> param) {
         return new ListCell<>() {

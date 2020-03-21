@@ -60,7 +60,6 @@ public class Console extends TextField {
       return "";
     }
   }
-
   private static boolean tryToParse(String consoleInput) {
     String exchangeLettersPattern = "EXCHANGE( [A-Z]){1,7}";
     String placingWordPattern = "[A-O]((1[0-5])|[1-9]) (A|D|ACROSS|DOWN) ([A-Z]){1,7}";
