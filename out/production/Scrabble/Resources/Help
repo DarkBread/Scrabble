@@ -1,0 +1,7 @@
+HELP - for displaying help.
+RULES - to read rules of the game.
+PASS - to pass your turn to the next player.
+EXCHANGE [letters you want to exchange separated by space] - to exchange these letters for random ones in the pool and pass you turn.
+For example - EXCHANGE A B C
+{row from A-O, column form 1-15} {a/d across/down} {WORD} For example H8 A START | in order to place word.
+QUIT to exit the game.
